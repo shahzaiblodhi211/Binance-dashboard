@@ -12,12 +12,23 @@ export default function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(400).json({ error: "Password required" })
   }
 
-  if (!validateDashboardPassword(password)) {
+  const result = validateDashboardPassword(password)
+
+  if (!result.valid) {
     return res.status(401).json({ error: "Invalid password" })
   }
 
-  // Set authentication cookie
-  res.setHeader("Set-Cookie", `auth_token=authenticated; Path=/; HttpOnly; SameSite=Strict; Max-Age=86400`)
+  // ✅ Set cookies: auth + dashboard type
+  const cookieOptions = "Path=/; HttpOnly; SameSite=Strict; Max-Age=86400"
+  const dashboardType = result.route === "/dashboard" ? "main" : "team"
 
-  return res.status(200).json({ success: true })
+  res.setHeader("Set-Cookie", [
+    `auth_token=authenticated; ${cookieOptions}`,
+    `dashboard_type=${dashboardType}; ${cookieOptions}`,
+  ])
+
+  return res.status(200).json({
+    success: true,
+    route: result.route, // either /dashboard or /team-dashboard
+  })
 }

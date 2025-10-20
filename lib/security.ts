@@ -7,17 +7,29 @@ export function validateWithdrawActionKey(providedKey: string | undefined): bool
   return providedKey === expectedKey
 }
 
-export function validateDashboardPassword(providedPassword: string | undefined): boolean {
-  const expectedPassword = process.env.DASHBOARD_PASSWORD
-  if (!expectedPassword) {
-    return true // No password set, allow access
+export function validateDashboardPassword(
+  providedPassword: string | undefined
+): { valid: boolean; route?: string; role?: string } {
+  const mainPassword = process.env.DASHBOARD_PASSWORD
+  const teamPassword = process.env.TEAM_DASHBOARD_PASSWORD
+
+  if (!mainPassword && !teamPassword) {
+    return { valid: true, route: "/dashboard", role: "admin" }
   }
-  return providedPassword === expectedPassword
+
+  if (providedPassword === mainPassword) {
+    return { valid: true, route: "/dashboard", role: "admin" }
+  }
+
+  if (providedPassword === teamPassword) {
+    return { valid: true, route: "/team-dashboard", role: "team" }
+  }
+
+  return { valid: false }
 }
 
 export function sanitizeErrorMessage(error: unknown): string {
   if (error instanceof Error) {
-    // Never expose API secrets in error messages
     const message = error.message
     if (message.includes("API-key")) {
       return "Authentication failed. Please check your API credentials."

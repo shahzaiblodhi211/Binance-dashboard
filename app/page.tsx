@@ -12,30 +12,33 @@ export default function LoginPage() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setLoading(true)
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault()
+  setError("")
+  setLoading(true)
 
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-      })
+  try {
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    })
 
-      if (response.ok) {
-        router.push("/dashboard")
-      } else {
-        const data = await response.json()
-        setError(data.error || "Invalid password")
-      }
-    } catch (err) {
-      setError("An error occurred. Please try again.")
-    } finally {
-      setLoading(false)
+    if (response.ok) {
+      const data = await response.json()
+      // Expecting { route: "/dashboard" } or { route: "/team-dashboard" }
+      router.push(data.route || "/dashboard")
+    } else {
+      const data = await response.json()
+      setError(data.error || "Invalid password")
     }
+  } catch (err) {
+    setError("An error occurred. Please try again.")
+  } finally {
+    setLoading(false)
   }
+}
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-card to-background flex items-center justify-center p-4">
