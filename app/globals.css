@@ -1,9 +1,6 @@
+@import "tailwindcss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@custom-variant dark (&:is(.dark *));
+@variant dark (&:is(.dark *));
 
 :root {
   --font-sans: "system-ui", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
